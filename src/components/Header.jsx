@@ -1,6 +1,6 @@
 import Form from "./Form";
 
-const Header = ({ onSubmit }) => {
+const Header = ({ setTasks }) => {
   return (
     <header className="p-3">
       <h1 className="text-light text-center fs-1 fw-light">
@@ -8,7 +8,7 @@ const Header = ({ onSubmit }) => {
       </h1>
 
       {/* Form */}
-      <Form onSubmit={onSubmit} />
+      <Form setTasks={setTasks} />
     </header>
   );
 };

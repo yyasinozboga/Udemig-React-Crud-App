@@ -1,17 +1,28 @@
-import { useState } from "react";
+import api from "../utils/api";
+import { toast } from "react-toastify";
 
-const Modal = ({ close, title, id, onUpdate }) => {
-  const [value, setValue] = useState(title);
-
-  const handleChange = (e) => {
-    setValue(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+const Modal = ({ close, setTasks, editedId, editedTitle, editedStatus }) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-    close();
+    const value = e.target[0].value;
+    const status = e.target[1].value;
     if (value.trim()) {
-      onUpdate(id, value);
+      api
+        .patch(`/tasks/${editedId}`, {
+          title: value,
+          status: status,
+        })
+        .then((res) => {
+          setTasks((tasks) =>
+            tasks.map((task) => (task.id === editedId ? res.data : task)),
+          ),
+            toast.info("Task Güncellendi!");
+        })
+        .catch(() => toast.error("Task Güncellenemedi!"));
+
+      close();
+    } else {
+      toast.warning("Lütfen bir değer giriniz!");
     }
   };
 
@@ -24,25 +35,42 @@ const Modal = ({ close, title, id, onUpdate }) => {
             <button onClick={close} className="btn-close"></button>
           </div>
           <div className="modal-body">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Lütfen task'i düzenleyiniz."
-              value={value}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="modal-footer">
-            <button onClick={close} type="button" className="btn btn-secondary">
-              İptal
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              onClick={handleSubmit}
-            >
-              Kaydet
-            </button>
+            <form onSubmit={handleFormSubmit}>
+              <div>
+                <label>Yeni Başlığı Giriniz</label>
+                <input
+                  type="text"
+                  className="form-control shadow"
+                  placeholder="Lütfen task'i düzenleyiniz."
+                  defaultValue={editedTitle}
+                />
+              </div>
+
+              <div className="mt-4">
+                <label>Yeni Durumu Seçiniz</label>
+                <select
+                  className="form-select shadow"
+                  defaultValue={editedStatus}
+                >
+                  <option value="daily">Günlük</option>
+                  <option value="job">İş</option>
+                  <option value="important">Önemli</option>
+                </select>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  onClick={close}
+                  type="button"
+                  className="btn btn-secondary"
+                >
+                  İptal
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Kaydet
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

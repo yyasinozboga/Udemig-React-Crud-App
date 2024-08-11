@@ -1,13 +1,30 @@
-const Form = ({ onSubmit }) => {
+import api from "../utils/api";
+import { toast } from "react-toastify";
+
+const Form = ({ setTasks }) => {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const value = e.target[0].value;
     const status = e.target[1].value;
     if (value.trim()) {
-      onSubmit(value, status);
+      //! Add Task
+      const newTask = {
+        title: value,
+        status,
+        date: new Date().toLocaleString("en-us"),
+      };
+
+      api
+        .post("/tasks", newTask)
+        .then((res) => {
+          setTasks((tasks) => [res.data, ...tasks]);
+          toast.success("Task eklendi!");
+        })
+        .catch((err) => toast.error("Task eklenemedi!"));
     } else {
-      alert("Lütfen bir işaret girin!");
+      toast.warning("Lütfen bir değer giriniz!");
     }
+
     e.target.reset();
   };
 
